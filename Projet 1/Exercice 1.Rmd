@@ -1,0 +1,240 @@
+---
+title: 'TP3: Bayésien naif'
+output:
+  html_document:
+    df_print: paged
+---
+### Question n°1
+```{r}
+library(e1071)
+```
+Chargement du package e1071 qui contient la fonction naiveBayes permettant l'implémentation de la méthode du Bayésien naif.
+
+### Données d'entrée binaires
+```{r}
+data(HouseVotes84, package = "mlbench")
+```
+Chargement des données HouseVote84 contenues dans le package mlbench
+
+```{r}
+help(HouseVotes84,package = "mlbench")
+```
+Cette commande permet de décrire la base de donnée en apportant des informations sur chacune des variables.
+
+```{r}
+g <- naiveBayes(Class ~ ., data = HouseVotes84)
+```
+On applique le modéle Bayésien sur l'ensemble des données.
+La probabilité conditionnelle pour chaque variable est  créée séparément par le modèle . Les probabilités a priori sont également calculées ce qui indique la distribution de nos données.
+Class correspond à la variable  prédire c'est à dire elle contient les différentes des variables à classer.
+
+```{r}
+g$apriori
+```
+Cette commande donne les fréquences d'apparution des démocrates et des républicains dans la variable Class.
+
+```{r}
+g$tables
+```
+On obtient les probabilités à priori il s'agit en effet des probabilités conditionnelles de chaques variables. Par exemple, en considérant le vote 16 noté V16, on peut dire que la probabilité qu'un membre du congrès vote contre les démocrates étant noté P(n/Y=democrat) est de 0.06486486 alors que la probabilité qu'un membre du congrès vote pour les démocrates noté P(y/Y=democrat) est égale à 0.93513514. De même que la probabilité qu'un membre du congrès vote contre les républicains notée P(n/Y=republican)=0.34246575 alors que la probabilité qu'un membre du congrès vote pour les démocrates notée P(y/Y=democrat) est égale à 0.65753425.
+
+```{r}
+predict(g, HouseVotes84[1,])
+```
+
+Cette fonction fait une prédiction avec le classificateur Naive Bayes.
+Elle renvoie la classe republicain car cette derniére a la probabilité la plus élevée au niveau de la premiére ligne.
+
+```{r}
+predict(g, HouseVotes84[1,], type = "raw")
+```
+
+Elle permet d'obtenir la probabilité pour chaque classe(republicain et démocrate) de la premiére ligne de notre base de données. Autrement dit il s'agit de la prédiction des probabilités de voter pour un républicains et pour un démocrate de la premiére ligne. 
+
+```{r}
+pred <- predict(g, HouseVotes84)
+```
+Elle fait ue prédiction des classes d'appartenance les plus probables de notre jeu de données.
+
+```{r}
+table(pred, HouseVotes84$Class)
+```
+Elle stocke sous forme de table les prédictions (en ligne) et les réels (en colonne).
+238 démocrates ont été bien prédits comme étant démocrates contre 29 qui ont été comme étant républicains.
+13 républicains ont été mal prédits contre 155 qui ont été bien prédits.
+Il s'agit de la matrice de confusion.
+
+### Données d'entrée quantitatives
+```{r}
+data(iris)
+```
+Chargement des données iris
+
+```{r}
+g <- naiveBayes(Species ~ ., data = iris)
+```
+
+On applique le modéle Bayésien sur l'ensemble des données.
+Les moyennes et les variances pour chaque variable est créée séparément par le modèle. Les probabilités a priori sont également calculées ce qui indique la distribution de nos données.
+Species correspond à la variable qui contient les différentes classes attribuées aux variables restantes de la base de donnée. 
+
+
+```{r}
+g$apriori
+```
+
+Elle indique les modalités d'apparution des différentes espéces sur l'ensemble du jeux de données.
+
+```{r}
+g$tables
+```
+On obtient les tableaux des moyennes et des variances pour chaque types d'espéces en fonction de chacune des caractéristiques des feuilles. Par exemple, pour le tableau de Petal.Width les calculs des moyennes (au niveau de la premiére colonne) et des variances(au niveau de la deuxiéme) fournissent la distribution normale pour chacune des espéces (setosa, versicolor et virginica).
+
+
+```{r}
+table(predict(g, iris), iris[,5])
+```
+La matrice de confusion indique que 50 setosa ont été comme étant des setosa c'est à dire toutes les setosa ont été bien classés.
+47 versicolors ont été bien classés contre 3 qui ont été classés comme étant virginica. 
+3 vrginica ont été mal classés contre 47 qui ont été bien classés.
+
+```{r}
+library(klaR)
+```
+Chargement de la librairie klaR
+
+```{r}
+?NaiveBayes
+```
+
+Elle donne une description détaillée du modéle NaiveBayes. C'est à dire la maniére de l'utiliser et comment on doit l'appliquer.
+
+```{r}
+m <- NaiveBayes(Species ~ ., data = iris)
+```
+La fonction naiveBayes renvoie un tableau des moyennes et des variances pour chaque variables.
+Ces calculs des moyennes et des variances fournissent la distribution normale pour chaque classe.
+Species correspond contient les différentes types servant à la classification.
+
+```{r}
+table(predict(m)$class, iris[,5])
+```
+La matrice de confusion indique que 50 sétosa ont été bien classées comme étant des setosa ce qui signifie que toutes les setosa ont été bien classés.
+47 versicolors ont été bien classés contre 3 qui ont été classés comme étant virginica. 
+3 vrginica ont été mal classés contre 47 qui ont été bien classés.
+
+```{r}
+m2 <- NaiveBayes(Species ~ ., data = iris, usekernel=TRUE)
+```
+
+La fonction naiveBayes renvoie un tableau contenant respectivement les moyennes et les variances pour chaque variable.
+Ces calculs de moyenne et de variance fournissent la distribution normale pour chaque classe.
+Elle fournit aussi les minimums, les maximaums, les 1er quartiles, les 3iéme quartiles, les médians et les moyennes des variables explicatives(x) et de la varibale cible(y.
+Species correspond contient les différentes types servant à la classification.
+
+```{r}
+names(predict(m2))
+```
+Elle donne la variable cible (class) et le type de probabilité dans notre cas il s'agit de la probabilité à postériorie.
+
+```{r}
+table(predict(m2)$class, iris[,5])
+```
+
+La matrice de confusion indique que 50 sétosa ont bien prédites comme étant des setosa  en d'autre terme toutes les setosa ont été bien classés.
+47 versicolors ont été bien classés contre 3 qui ont été classés comme étant virginica. 
+3 virginica ont été mal classés contre 47 qui ont été bien classés.
+
+### Question n°2: Comparaison des performances entre le Bayésien naif, le LDA et le QDA
+### Chargement et visualisation des données
+```{r}
+load("Desbois_complet.rda")
+View(data)
+
+```
+
+### Transformation de la variable DIFF en facteur
+```{r}
+data$DIFF = factor(data$DIFF)
+class(data$DIFF)
+```
+### Division en données de train et de test
+```{r}
+require(caTools)
+set.seed(101) 
+sample = sample.split(data[,1], SplitRatio = .80)
+train = subset(data, sample == TRUE)
+test  = subset(data, sample == FALSE)
+
+```
+
+### Entrainement des 3 modéles sur les données de train de Dubois
+```{r}
+library(MASS)
+library(ggplot2)
+
+nb_model = naiveBayes(DIFF ~ ., data = train)
+lda_model = lda(DIFF~ ., data = train)
+qda_model =qda(DIFF~ ., data = train)
+```
+
+### Prédiction sur les données de test
+```{r}
+predict_nb = predict(nb_model, newdata = test)
+predict_lda = predict(lda_model, newdata = test)
+predict_qda = predict(qda_model, newdata = test)
+```
+
+### Matrice de confusion des trois modéles
+```{r}
+# matrice de confusion du modéle naive bayesian
+cm_nb = table(test$DIFF, predict_nb)
+# matrice de confusion du modéle lda
+cm_lda = table(test$DIFF, predict_lda$class)
+# matrice de confusion du modéle qda
+cm_qda = table(test$DIFF, predict_qda$class)
+```
+
+
+### Evaluation du modéle
+```{r}
+library(caret)
+## Evaluation du modéle naive basyesian:
+confusionMatrix(cm_nb)
+## Evaluation du modéle lda:
+confusionMatrix(cm_lda)
+## Evaluation du modéle qda:
+confusionMatrix(cm_qda)
+```
+Pour la matrice du modéle naive bayesian: on peut dire que 
+sur 149 éléments de la classe 0, 118 ont été bien classés c'est à dire que 118 éléments de la classe 0 ont été bien prédits comme appartenant à la classe 0. Par contre sur ces 120 éléments de la classe 0, 31 ont été mal classés c'est à dire qu'ils ont été dans la classe 1.
+Sur les 103 éléments de la classe 1, 13 éléments ont été mal classés contre 90 qui ont été bien classés.
+Pour la matrice de confusion du modéle lda: on peut dire que sur les 146 éléments de la classe 0, 120 ont été bien classés contre 26 qui ont été mal classés.Sur les 106 éléments de la classe 0, 11 ont été mal classés contre 95 qui ont été bien classés.
+Pour la matrice de confusion du modéle qda: on peut dire que sur les 158 éléments de la classe 0, 120 éléments ont été bien classés contre 38 qui ont été mal classés. Sur les
+94 éléments de la classe 1, 11 ont été bien mal classés contre 83 qui ont été bien classés.
+En se basant sur les performances réalisés au niveau de matrice de confusion, on voit que le modéle lda est plus performant suivi respectivement des modéles qda et naive bayesian. Le modéle lda fait moins de mal classification d'aprés les valeurs de faux positifs(erreur de type 1) et de faux négatifs (erreur de type 2).
+De plus l'accuracy du modéle lda est de 85.32 % et 82.54 %,
+80.56 % pour respectivement les modéles naive bayesian et qda avec des valeurs de p inférieure à 1. 
+Donc d'aprés les précisions on peut dire que dans 85.32% le modéle lda a correctement classé les élèments dans la classe 0 ou 1 contre 82.54% et 80.56% respectivement pour les modéles naive bayesian et qda.
+La sensibilité(Taux de vrai positif) du modéle lda est de 82.19% ce qui est supérieur à celles du naive bayésien et du qda qui sont respectivement 79.19% et 75.95%. 
+De même que la spécificité (taux de vrais négatifs) du modéle lda est de 89.62% ce qui est supérieur à celles des modéles qda et naives bayesian qui sont respectivement égales à 88.30% et 87.38%.
+Notons que la classe positive pour nos trois modéles est 0.
+
+```{r}
+library(pROC)
+## Valeur de l'AUC de naive bayesian
+auc(test$DIFF, as.numeric(predict_nb))
+## Valeur de l'AUC de naive bayesian
+auc(test$DIFF, as.numeric(unlist(predict_lda$class)))
+## Valeur de l'AUC de naive bayesian
+auc(test$DIFF, as.numeric(unlist(predict_qda$class)))
+```
+En se basant sur les valeurs de l'AUROC obtenues, on peut dire que les classifieurs des différents modéles  ont de trés bonne qualité de précision car leurs valeurs sont proches de 1.
+Ainsi l'AUROC de lda (85.06%) est la meilleure suivie de respectivement de celle de naive bayesian (82.23%) et du qda (80.1%).
+Nous pouvons donc conlcure que le modéle lda est le plus performant parmi les trois modéles. 
+
+
+
+
+
+
